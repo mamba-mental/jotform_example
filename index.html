@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tradeline Selection Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        .form-section { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 10px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer; }
+        #tradelines { border: 1px solid #aaa; padding: 10px; margin-bottom: 10px; }
+        #cart { background-color: #f9f9f9; padding: 15px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <form id="tradelineForm">
+        <div class="form-section">
+            <h2>1. General Information</h2>
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" name="fullName" required>
+            
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" required>
+            
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" required>
+            
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" name="dob" required>
+            
+            <label for="ssn">Social Security Number:</label>
+            <input type="text" id="ssn" name="ssn" required>
+        </div>
+
+        <div class="form-section" id="businessInfo" style="display:none;">
+            <h2>2. Business Information</h2>
+            <label for="companyName">Company Name:</label>
+            <input type="text" id="companyName" name="companyName">
+            
+            <label for="ein">Business EIN:</label>
+            <input type="text" id="ein" name="ein">
+            
+            <label for="businessAddress">Business Address:</label>
+            <input type="text" id="businessAddress" name="businessAddress">
+            
+            <label for="formationDate">Date of Formation:</label>
+            <input type="date" id="formationDate" name="formationDate">
+        </div>
+
+        <div class="form-section">
+            <h2>3. Tradeline Selection</h2>
+            <div id="tradelines"></div>
+            <button type="button" onclick="addTradeline()">Add Another Tradeline</button>
+        </div>
+
+        <div class="form-section">
+            <h2>4. Document Upload</h2>
+            <label for="govId">Government ID:</label>
+            <input type="file" id="govId" name="govId" required>
+            
+            <label for="proofAddress">Proof of Address:</label>
+            <input type="file" id="proofAddress" name="proofAddress" required>
+            
+            <label for="businessDocs">Business Documents (if applicable):</label>
+            <input type="file" id="businessDocs" name="businessDocs">
+        </div>
+
+        <div class="form-section">
+            <h2>5. Agreement and Consent</h2>
+            <label for="terms">
+                <input type="checkbox" id="terms" name="terms" required>
+                I agree to the Terms and Conditions
+            </label>
+            <label for="signature">Electronic Signature:</label>
+            <input type="text" id="signature" name="signature" required>
+        </div>
+
+        <div class="form-section">
+            <h2>6. Contact Preferences</h2>
+            <label for="contactMethod">Preferred Contact Method:</label>
+            <select id="contactMethod" name="contactMethod">
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+            </select>
+            
+            <label for="bestTime">Best Time to Contact:</label>
+            <input type="text" id="bestTime" name="bestTime">
+        </div>
+
+        <div id="cart">
+            <h2>7. Cart Summary</h2>
+            <div id="summary"></div>
+            <button type="button" onclick="updateCart()">Update Cart</button>
+        </div>
+
+        <div class="form-section">
+            <h2>8. Payment Information</h2>
+            <p>Payment will be processed securely via Authorize.net</p>
+            <!-- Placeholder for Authorize.net payment form -->
+            <div id="authorizenet-payment-form">
+                <!-- Authorize.net form would be inserted here by JotForm -->
+            </div>
+        </div>
+
+        <button type="submit">Submit Order</button>
+    </form>
+
+    <script>
+        let tradelineCount = 0;
+
+        function addTradeline() {
+            tradelineCount++;
+            const tradelineDiv = document.createElement('div');
+            tradelineDiv.innerHTML = `
+                <h3>Tradeline ${tradelineCount}</h3>
+                <label for="tradelineType${tradelineCount}">Tradeline Type:</label>
+                <select id="tradelineType${tradelineCount}" name="tradelineType${tradelineCount}" onchange="toggleBusinessInfo(this)">
+                    <option value="personal">Personal</option>
+                    <option value="business">Business</option>
+                </select>
+
+                <label for="tradelineCategory${tradelineCount}">Tradeline Category:</label>
+                <select id="tradelineCategory${tradelineCount}" name="tradelineCategory${tradelineCount}" onchange="updateSubcategories(this)">
+                    <option value="revolvingLoan">Revolving Loan</option>
+                    <option value="autoLoan">Auto Loan</option>
+                    <option value="termLoan">Term Loan</option>
+                    <option value="lineOfCredit">Line of Credit</option>
+                    <option value="commercialCard">Commercial Card</option>
+                    <option value="lease">Lease</option>
+                    <option value="letterOfCredit">Letter of Credit</option>
+                    <option value="openEndedCreditLine">Open-Ended Credit Line</option>
+                </select>
+
+                <label for="subcategory${tradelineCount}">Subcategory and Face Value:</label>
+                <select id="subcategory${tradelineCount}" name="subcategory${tradelineCount}">
+                    <option value="50000">$50,000</option>
+                    <option value="100000">$100,000</option>
+                    <option value="150000">$150,000</option>
+                    <option value="200000">$200,000</option>
+                    <option value="250000">$250,000</option>
+                    <option value="500000">$500,000</option>
+                    <option value="1000000">$1,000,000</option>
+                </select>
+
+                <label for="backdating${tradelineCount}">Backdating:</label>
+                <select id="backdating${tradelineCount}" name="backdating${tradelineCount}">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                </select>
+
+                <label for="backdatingPeriod${tradelineCount}">Backdating Period (years):</label>
+                <input type="number" id="backdatingPeriod${tradelineCount}" name="backdatingPeriod${tradelineCount}" min="0" max="19">
+
+                <p id="bureauStatement${tradelineCount}">This tradeline will be reported to TransUnion, Equifax, and Experian.</p>
+
+                <div id="expeditedService${tradelineCount}" style="display:none;">
+                    <label for="expedited${tradelineCount}">Expedited Service:</label>
+                    <select id="expedited${tradelineCount}" name="expedited${tradelineCount}">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+            `;
+            document.getElementById('tradelines').appendChild(tradelineDiv);
+            updateCart();
+        }
+
+        function toggleBusinessInfo(select) {
+            const businessInfo = document.getElementById('businessInfo');
+            businessInfo.style.display = Array.from(document.querySelectorAll('[id^="tradelineType"]'))
+                .some(el => el.value === 'business') ? 'block' : 'none';
+            
+            const tradelineNum = select.id.replace('tradelineType', '');
+            const bureauStatement = document.getElementById(`bureauStatement${tradelineNum}`);
+            const expeditedService = document.getElementById(`expeditedService${tradelineNum}`);
+            
+            if (select.value === 'business') {
+                bureauStatement.textContent = "This tradeline will be reported to Dun & Bradstreet, Experian Business, and Equifax Business.";
+                expeditedService.style.display = 'block';
+            } else {
+                bureauStatement.textContent = "This tradeline will be reported to TransUnion, Equifax, and Experian.";
+                expeditedService.style.display = 'none';
+            }
+            updateCart();
+        }
+
+        function updateSubcategories(select) {
+            const tradelineNum = select.id.replace('tradelineCategory', '');
+            const subcategorySelect = document.getElementById(`subcategory${tradelineNum}`);
+            subcategorySelect.innerHTML = '';
+            
+            if (select.value === 'autoLoan') {
+                subcategorySelect.innerHTML = '<option value="custom">Custom Face Value</option>';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = `customFaceValue${tradelineNum}`;
+                input.name = `customFaceValue${tradelineNum}`;
+                input.placeholder = 'Enter Face Value';
+                subcategorySelect.parentNode.insertBefore(input, subcategorySelect.nextSibling);
+            } else {
+                const options = [
+                    { value: 50000, text: '$50,000' },
+                    { value: 100000, text: '$100,000' },
+                    { value: 150000, text: '$150,000' },
+                    { value: 200000, text: '$200,000' },
+                    { value: 250000, text: '$250,000' },
+                    { value: 500000, text: '$500,000' },
+                    { value: 1000000, text: '$1,000,000' }
+                ];
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.text;
+                    subcategorySelect.appendChild(opt);
+                });
+            }
+            updateCart();
+        }
+
+        function updateCart() {
+            const summary = document.getElementById('summary');
+            summary.innerHTML = '<h3>Order Summary:</h3>';
+            let total = 0;
+
+            for (let i = 1; i <= tradelineCount; i++) {
+                const type = document.getElementById(`tradelineType${i}`).value;
+                const category = document.getElementById(`tradelineCategory${i}`).value;
+                const subcategory = document.getElementById(`subcategory${i}`).value;
+                const backdating = document.getElementById(`backdating${i}`).value;
+                const price = subcategory === 'custom' 
+                    ? parseFloat(document.getElementById(`customFaceValue${i}`).value) * 0.08 
+                    : parseFloat(subcategory) * 0.02;
+                
+                summary.innerHTML += `<p>Tradeline ${i}: ${type} ${category} - $${price.toFixed(2)}</p>`;
+                total += price;
+
+                if (type === 'business') {
+                    const expedited = document.getElementById(`expedited${i}`).value;
+                    if (expedited === 'yes') {
+                        summary.innerHTML += '<p>Expedited Fee: $100.00</p>';
+                        total += 100;
+                    }
+                }
+            }
+
+            summary.innerHTML += `<p><strong>Total: $${total.toFixed(2)}</strong></p>`;
+        }
+
+        document.getElementById('tradelineForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateCart();
+            alert('Form submitted. In a real implementation, this would process the payment via Authorize.net and submit the order.');
+        });
+
+        // Initialize with one tradeline
+        addTradeline();
+    </script>
+</body>
+</html>
